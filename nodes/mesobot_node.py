@@ -6,7 +6,10 @@ from sonardyne_msgs.msg import SMS
 from geographic_msgs.msg import GeoPointStamped
 from geographic_msgs.msg import GeoPoseStamped
 from marine_msgs.msg import Heartbeat
-from marine_msgs.msg import KeyValue
+from marine_msgs.msg import KeyValue as HBKeyValue
+
+
+last_state = None
 
 def smsCallback( msg):
   print (msg)
@@ -26,20 +29,21 @@ def smsCallback( msg):
     key = None
     values = []
     hb = Heartbeat()
+    hb.header.stamp = rospy.Time.now()
     for p in parts:
-      if p in decoder.keys:
+      if p in decoder.keys():
         if key is not None:
-          kv = KeyValue()
-          kv.key = decoder(key)
+          kv = HBKeyValue()
+          kv.key = decoder[key]
           kv.value = ', '.join(values)
           hb.values.append(kv)
-          key = None
-          values = []
+        key = p
+        values = []
       else:
         values.append(p)
     if key is not None:
-      kv = KeyValue()
-      kv.key = decoder(key)
+      kv = HBKeyValue()
+      kv.key = decoder[key]
       kv.value = ', '.join(values)
       hb.values.append(kv)
     heartbeat_pub.publish(hb)
