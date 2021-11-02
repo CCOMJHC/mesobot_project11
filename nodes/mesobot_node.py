@@ -11,8 +11,45 @@ from marine_msgs.msg import KeyValue
 def smsCallback( msg):
   print (msg)
 
+  decoder = {'H:':'Heading',
+             'D:':'Depth',
+             'B:':'Battery',
+             'R:':'Radiometer',
+             'S:':'Flows',
+             'C:':'Command',
+             'M:':'Status'
+             }
+
+  if msg.message.startswith('H: '):
+    parts = msg.message.split()
+    print (parts)
+    key = None
+    values = []
+    hb = Heartbeat()
+    for p in parts:
+      if p in decoder.keys:
+        if key is not None:
+          kv = KeyValue()
+          kv.key = decoder(key)
+          kv.value = ', '.join(values)
+          hb.values.append(kv)
+          key = None
+          values = []
+      else:
+        values.append(p)
+    if key is not None:
+      kv = KeyValue()
+      kv.key = decoder(key)
+      kv.value = ', '.join(values)
+      hb.values.append(kv)
+    heartbeat_pub.publish(hb)
+    
+
+
+
 def positionCallback(msg):
-  print (msg)
+  pass
+  #print (msg)
 
 rospy.init_node('command_bridge_sender', anonymous=False)
 
