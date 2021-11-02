@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mesobot_project11</name>
+  <version>0.0.0</version>
+  <description>
+    Topside package to interface with WHOI's Mesobot vis USBL.
+  </description>
+
+  <author email="roland@ccom.unh.edu">Roland Arsenault</author>
+  <maintainer email="roland@ccom.unh.edu">Roland Arsenault</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>project11</exec_depend>
+  <depend>rospy</depend>
+
+</package>
