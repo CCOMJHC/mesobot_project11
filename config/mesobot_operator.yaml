@@ -1,0 +1,6 @@
+project11/platforms/mesobot:
+  width: 0.5
+  length: 1.5
+  nav_sources:
+    usbl:
+      geopose_topic: /project11/mesobot/nav/position
