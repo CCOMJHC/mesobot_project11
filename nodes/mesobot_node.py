@@ -106,7 +106,7 @@ def backupPositionCallback(msg):
   #print (msg)
 
 
-rospy.init_node('command_bridge_sender', anonymous=False)
+rospy.init_node('mesobot', anonymous=False)
 
 sms_sub = rospy.Subscriber('sms', SMS, smsCallback)
 position_sub = rospy.Subscriber('position', GeoPointStamped, positionCallback)
