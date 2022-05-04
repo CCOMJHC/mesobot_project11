@@ -1,4 +1,5 @@
 project11/platforms/mesobot:
+  namespace: /project11/mesobot
   width: 0.5
   length: 2.0
   nav_sources:
