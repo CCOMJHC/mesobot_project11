@@ -7,6 +7,7 @@ from geographic_msgs.msg import GeoPointStamped
 from geographic_msgs.msg import GeoPoseStamped
 from marine_msgs.msg import Heartbeat
 from marine_msgs.msg import KeyValue as HBKeyValue
+from std_msgs.msg import Float32
 
 import math
 
@@ -19,7 +20,7 @@ last_positon_time = None
 
 def smsCallback( msg):
   global last_state
-  print (msg)
+  #print (msg)
 
   decoder = {'H:':'Heading',
              'D:':'Depth',
@@ -52,9 +53,37 @@ def smsCallback( msg):
       else:
         values.append(p)
         if key == 'H:' and not 'heading' in state:
-          state['heading'] = float(p)
+          try:
+            state['heading'] = float(p)
+            hmsg = Float32()
+            hmsg.data = state['heading']
+            heading_pub.publish(hmsg)
+          except ValueError:
+            pass
         if key == 'D:' and not 'depth' in state:
-          state['depth'] = float(p)
+          try:
+            state['depth'] = float(p)
+            dmsg = Float32()
+            dmsg.data = state['depth']
+            depth_pub.publish(dmsg)
+          except ValueError:
+            pass
+        if key == 'B:' and not 'battery' in state:
+          try:
+            state['battery'] = float(p)
+            bmsg = Float32()
+            bmsg.data = state['battery']
+            battery_pub.publish(bmsg)
+          except ValueError:
+            pass
+        if key == 'R:' and not 'radiometer' in state:
+          try:
+            state['radiometer'] = float(p)
+            rmsg = Float32()
+            rmsg.data = state['radiometer']
+            radiometer_pub.publish(rmsg)
+          except ValueError:
+            pass
 
     if key is not None:
       kv = HBKeyValue()
@@ -114,5 +143,10 @@ backup_position_sub = rospy.Subscriber('backup_position', GeoPointStamped, backu
 
 heartbeat_pub = rospy.Publisher('project11/heartbeat', Heartbeat, queue_size=1)
 position_pub = rospy.Publisher('nav/position', GeoPoseStamped, queue_size=1)
+
+heading_pub = rospy.Publisher('heading', Float32, queue_size=1)
+depth_pub = rospy.Publisher('depth', Float32, queue_size=1)
+battery_pub = rospy.Publisher('battery', Float32, queue_size=1)
+radiometer_pub = rospy.Publisher('radiometer', Float32, queue_size=1)
 
 rospy.spin()
