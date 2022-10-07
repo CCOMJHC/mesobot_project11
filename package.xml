@@ -13,6 +13,15 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>project11</exec_depend>
+  <depend>roscpp</depend>
   <depend>rospy</depend>
+  <depend>roslint</depend>
+  <depend>rqt_gui</depend>
+  <depend>rqt_gui_cpp</depend>
+  <depend>sonardyne_msgs</depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
 
 </package>

@@ -1,0 +1,12 @@
+<library path="lib/libmesobot_project11">
+    <class name="mesobot/MesobotPlugin" type="mesobot::MesobotPlugin" base_class_type="rqt_gui_cpp::Plugin">
+        <description>
+            An interface to WHOI's Mesobot AUV.
+        </description>
+        <qtgui>
+            <label>Mesobot Plugin</label>
+            <icon type="theme">system-help</icon>
+            <statustip>Send control commands to Mesobot</statustip>
+        </qtgui>
+    </class>   
+</library>
