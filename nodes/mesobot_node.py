@@ -5,8 +5,8 @@ import rospy
 from sonardyne_msgs.msg import SMS
 from geographic_msgs.msg import GeoPointStamped
 from geographic_msgs.msg import GeoPoseStamped
-from marine_msgs.msg import Heartbeat
-from marine_msgs.msg import KeyValue as HBKeyValue
+from project11_msgs.msg import Heartbeat
+from project11_msgs.msg import KeyValue as HBKeyValue
 from std_msgs.msg import Float32
 
 import math
