@@ -1,0 +1,42 @@
+Supported downlink commands:
+QUIT
+
+DEPTH_OFFSET 10
+
+GOAL1 2 3.14159     <DOF>       <setpoint>
+
+Good for depth and heading goals.
+
+DRIVE 1 180       <duty_cycle>  <seconds>
+
+SAMPLE 0 13 900
+
+pump sampler unit 0, cartridge 13 for 15 minutes
+N.B. DEPTH_OFFSET is a command that currently only works via acoustic communication, but not in the mission script.
+
+- three axes with positive pointing forward, starboard, keelward
+- three angles with right-handed chirality on each of those axes (sometimes known as nautical angles)
+  - internally we use quaternions to represent orientation, but Dana extracts heading and closes the loop in that plane only
+
+With C/C++ arrays beginning at index 0, this means:
+
+- 0: forward
+- 1: vehicle’s right
+- 2: down (if vehicle is level)
+- 3: roll
+- 4: pitch
+- 5: yaw
+
+For mesobot, we primarily control DOF 0, 2, 5.
+
+Degrees  Radians
+   0       0.00
+  45       0.78
+  90       1.57
+ 135       2.35
+ 180       3.14
+ 225       3.93
+ 270       4.71
+ 315       5.50
+ 360       6.28
+ 
