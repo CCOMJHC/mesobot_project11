@@ -7,6 +7,9 @@ import mesobot_project11.dynamics
 
 from geographic_msgs.msg import GeoPoseStamped
 from geographic_msgs.msg import GeoPointStamped
+from sonardyne_msgs.msg import SMS
+from std_msgs.msg import String
+
 import math
 
 
@@ -15,11 +18,15 @@ class USBL:
     self.tracking_period = rospy.Duration(10.0) # time between tracking updates
     self.max_range = 3000 # distance in meters
 
-    self.frame_id = rospy.get_param('~usbl_frame_id', 'project11/drix_8/base_link')
+    self.frame_id = rospy.get_param('~usbl_frame_id', 'base_link')
+    self.address =  rospy.get_param('~usbl_address', 2509)
 
     self.last_tracking_time = None
 
-    self.position_pub = rospy.Publisher('/project11/drix_8/usbl_ranger/positions/2509', GeoPointStamped, queue_size=1)
+    self.position_pub = rospy.Publisher('position', GeoPointStamped, queue_size=1)
+
+    self.sms_sub = rospy.Subscriber('send_sms', SMS, self.usblSMSCallback)
+    self.raw_sub = rospy.Subscriber('send_raw', String, self.usblRawCallback)
 
   def iterate(self, event):
     if self.last_tracking_time is None or event.current_real - self.last_tracking_time >= self.tracking_period:
@@ -30,6 +37,13 @@ class USBL:
       gps.position.altitude = -mesobot.depth
       self.position_pub.publish(gps)
       self.last_tracking_time = event.current_real
+
+  def usblRawCallback(self, msg):
+    pass
+
+  def usblSMSCallback(self, msg):
+    pass
+
 
 mesobot = mesobot_project11.dynamics.MesobotDynamics()
 

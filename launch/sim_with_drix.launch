@@ -1,0 +1,14 @@
+<launch>
+  <arg name="drixNumber" default="1"/>
+  <arg name="drixNamespace" default="project11/drix_$(arg drixNumber)"/>
+  <arg name="mesobot_address" default="2509"/>
+
+  <node pkg="mesobot_project11" type="mesobot_sim.py" name="mesobot_sim">
+    <remap from="send_sms" to="/$(arg drixNamespace)/usbl_modem/send_sms"/>
+    <remap from="send_raw" to="/$(arg drixNamespace)/usbl_modem/send_raw"/>
+    <remap from="position" to="/$(arg drixNamespace)/usbl_ranger/positions/$(arg mesobot_address)"/>
+    <param name="usbl_address" value="$(arg mesobot_address)"/>
+    <param name="usbl_frame_id" value="$(arg drixNamespace)/base_link"/>
+  </node>
+
+</launch>
