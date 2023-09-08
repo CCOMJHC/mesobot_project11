@@ -7,6 +7,7 @@
     <remap from="send_sms" to="/$(arg drixNamespace)/usbl_modem/send_sms"/>
     <remap from="send_raw" to="/$(arg drixNamespace)/usbl_modem/send_raw"/>
     <remap from="position" to="/$(arg drixNamespace)/usbl_ranger/positions/$(arg mesobot_address)"/>
+    <remap from="status" to="/$(arg drixNamespace)/usbl_modem/received_sms"/>
     <param name="usbl_address" value="$(arg mesobot_address)"/>
     <param name="usbl_frame_id" value="$(arg drixNamespace)/base_link"/>
   </node>

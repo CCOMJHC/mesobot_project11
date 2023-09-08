@@ -3,12 +3,16 @@
 import rospy
 import tf.transformations
 
+import tf2_ros
+
 import mesobot_project11.dynamics
 
 from geographic_msgs.msg import GeoPoseStamped
 from geographic_msgs.msg import GeoPointStamped
 from sonardyne_msgs.msg import SMS
 from std_msgs.msg import String
+
+import project11.wgs84
 
 import math
 
@@ -19,30 +23,57 @@ class USBL:
     self.max_range = 3000 # distance in meters
 
     self.frame_id = rospy.get_param('~usbl_frame_id', 'base_link')
-    self.address =  rospy.get_param('~usbl_address', 2509)
+    self.address = str(rospy.get_param('~usbl_address', 2509))
 
     self.last_tracking_time = None
 
     self.position_pub = rospy.Publisher('position', GeoPointStamped, queue_size=1)
+    self.status_pub = rospy.Publisher('status', SMS, queue_size=1)
 
     self.sms_sub = rospy.Subscriber('send_sms', SMS, self.usblSMSCallback)
     self.raw_sub = rospy.Subscriber('send_raw', String, self.usblRawCallback)
 
+    self.tfBuffer = tf2_ros.Buffer()
+    self.listener = tf2_ros.TransformListener(self.tfBuffer)
+
   def iterate(self, event):
     if self.last_tracking_time is None or event.current_real - self.last_tracking_time >= self.tracking_period:
-      gps = GeoPointStamped()
-      gps.header.stamp = event.current_real
-      gps.position.latitude = mesobot.latitude
-      gps.position.longitude = mesobot.longitude
-      gps.position.altitude = -mesobot.depth
-      self.position_pub.publish(gps)
+      try:
+        transform = self.tfBuffer.lookup_transform("earth", self.frame_id, rospy.Time())
+        meso_ecef = project11.wgs84.toECEFfromDegrees(mesobot.latitude, mesobot.longitude, -mesobot.depth)
+        
+        dx = meso_ecef[0]-transform.transform.translation.x
+        dy = meso_ecef[1]-transform.transform.translation.y
+        dz = meso_ecef[2]-transform.transform.translation.z
+
+        distance = math.sqrt(dx*dx+dy*dy+dz*dz)
+
+        if distance < self.max_range:
+          gps = GeoPointStamped()
+          gps.header.stamp = event.current_real
+          gps.position.latitude = mesobot.latitude
+          gps.position.longitude = mesobot.longitude
+          gps.position.altitude = -mesobot.depth
+          self.position_pub.publish(gps)
+
+          status_sms = SMS()
+          status_sms.message = mesobot.status()
+          self.status_pub.publish(status_sms)
+        
+      except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        print("transform error")
       self.last_tracking_time = event.current_real
+      
 
   def usblRawCallback(self, msg):
     pass
 
   def usblSMSCallback(self, msg):
-    pass
+    if msg.address == self.address:
+      self.executeCommand(msg.message)
+
+  def executeCommand(self, command):
+    mesobot.command(command, rospy.get_time())
 
 
 mesobot = mesobot_project11.dynamics.MesobotDynamics()
@@ -60,6 +91,7 @@ mesobot.reset(lat, lon, depth, heading, rospy.get_time())
 pose_pub = rospy.Publisher('~debug/position', GeoPoseStamped, queue_size=1)
 
 def iterate(event):
+  mesobot.iterate(event.current_real.to_sec())
   gps = GeoPoseStamped()
   gps.header.frame_id = 'mesobot'
   gps.header.stamp = event.current_real
