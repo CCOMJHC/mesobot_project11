@@ -81,8 +81,8 @@ mesobot = mesobot_project11.dynamics.MesobotDynamics()
 rospy.init_node("mesobot_sim")
 
 
-lat = rospy.get_param('~start_latitude', 43.0)
-lon = rospy.get_param('~start_longitude', -70.65)
+lat = rospy.get_param('~start_latitude', 43.03)
+lon = rospy.get_param('~start_longitude', -70.67)
 depth = rospy.get_param('~start_depth', 50.0)
 heading = rospy.get_param("~start_heading", 6.0)
 
