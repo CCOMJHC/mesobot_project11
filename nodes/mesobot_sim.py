@@ -66,7 +66,7 @@ class USBL:
             gps.position.latitude = mesobot.latitude
             gps.position.longitude = mesobot.longitude
             gps.position.altitude = -mesobot.depth
-            
+
           self.position_pub.publish(gps)
 
           status_sms = SMS()
@@ -109,9 +109,9 @@ def iterate(event):
   gps = GeoPoseStamped()
   gps.header.frame_id = 'mesobot'
   gps.header.stamp = event.current_real
-  gps.pose.position.latitude = mesobot.latitude 
-  gps.pose.position.longitude = mesobot.longitude 
-  gps.pose.position.altitude = -mesobot.depth 
+  gps.pose.position.latitude = mesobot.latitude
+  gps.pose.position.longitude = mesobot.longitude
+  gps.pose.position.altitude = -mesobot.depth
 
   yaw = math.radians(90.0)-mesobot.heading
   q = tf.transformations.quaternion_from_euler(yaw, 0, 0, 'rzyx')
