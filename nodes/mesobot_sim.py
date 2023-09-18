@@ -15,6 +15,7 @@ from std_msgs.msg import String
 import project11.wgs84
 
 import math
+import random
 
 
 class USBL:
@@ -51,11 +52,21 @@ class USBL:
         self.distance = math.sqrt(dx*dx+dy*dy+dz*dz)
 
         if self.distance < self.max_range:
+
+          noise = rospy.get_param('~noise', True)
+
           gps = GeoPointStamped()
           gps.header.stamp = event.current_real
-          gps.position.latitude = mesobot.latitude
-          gps.position.longitude = mesobot.longitude
-          gps.position.altitude = -mesobot.depth
+
+          if noise:
+            gps.position.latitude = mesobot.latitude + random.gauss(0, 0.0001)
+            gps.position.longitude = mesobot.longitude + random.gauss(0, 0.0001)
+            gps.position.altitude = -mesobot.depth + random.gauss(0, 0.01)
+          else: 
+            gps.position.latitude = mesobot.latitude
+            gps.position.longitude = mesobot.longitude
+            gps.position.altitude = -mesobot.depth
+            
           self.position_pub.publish(gps)
 
           status_sms = SMS()
@@ -98,9 +109,9 @@ def iterate(event):
   gps = GeoPoseStamped()
   gps.header.frame_id = 'mesobot'
   gps.header.stamp = event.current_real
-  gps.pose.position.latitude = mesobot.latitude
-  gps.pose.position.longitude = mesobot.longitude
-  gps.pose.position.altitude = -mesobot.depth
+  gps.pose.position.latitude = mesobot.latitude 
+  gps.pose.position.longitude = mesobot.longitude 
+  gps.pose.position.altitude = -mesobot.depth 
 
   yaw = math.radians(90.0)-mesobot.heading
   q = tf.transformations.quaternion_from_euler(yaw, 0, 0, 'rzyx')
