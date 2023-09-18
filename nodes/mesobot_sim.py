@@ -36,6 +36,8 @@ class USBL:
     self.tfBuffer = tf2_ros.Buffer()
     self.listener = tf2_ros.TransformListener(self.tfBuffer)
 
+    self.distance = None
+
   def iterate(self, event):
     if self.last_tracking_time is None or event.current_real - self.last_tracking_time >= self.tracking_period:
       try:
@@ -46,9 +48,9 @@ class USBL:
         dy = meso_ecef[1]-transform.transform.translation.y
         dz = meso_ecef[2]-transform.transform.translation.z
 
-        distance = math.sqrt(dx*dx+dy*dy+dz*dz)
+        self.distance = math.sqrt(dx*dx+dy*dy+dz*dz)
 
-        if distance < self.max_range:
+        if self.distance < self.max_range:
           gps = GeoPointStamped()
           gps.header.stamp = event.current_real
           gps.position.latitude = mesobot.latitude
@@ -70,7 +72,8 @@ class USBL:
 
   def usblSMSCallback(self, msg):
     if msg.address == self.address:
-      self.executeCommand(msg.message)
+      if self.distance is not None and self.distance < self.max_range:
+        self.executeCommand(msg.message)
 
   def executeCommand(self, command):
     mesobot.command(command, rospy.get_time())
