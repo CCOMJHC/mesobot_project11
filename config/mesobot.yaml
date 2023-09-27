@@ -1,0 +1,3 @@
+mru_transform/sensors:
+ - name: nav
+   topics: { position: 'sensors/nav/pose', orientation: 'sensors/nav/pose', velocity: 'sensors/nav/velocity'}

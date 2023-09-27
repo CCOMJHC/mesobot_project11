@@ -1,12 +1,16 @@
 <launch>
-  <arg name="mesobot_namespace" default="project11/mesobot"/>
+  <arg name="namespace" default="project11/mesobot"/>
   <arg name="host_namespace"/>
   <arg name="usbl_address" default="2509"/>
   <arg name="usbl_backup_address" default="2712"/>
   <arg name="platform_name" default="mesobot"/>
 
+  <include file="$(find project11)/launch/robot_core.launch">
+    <arg name="namespace" value="$(arg namespace)"/>
+    <arg name="enableBridge" value="false"/>
+  </include>
 
-  <group ns="$(arg mesobot_namespace)">
+  <group ns="$(arg namespace)">
     <node pkg="mesobot_project11" type="mesobot_node.py" name="mesobot">
       <remap from="sms" to="/$(arg host_namespace)/usbl_modem/received_sms"/>
       <remap from="position" to="/$(arg host_namespace)/usbl_ranger/positions/$(arg usbl_address)"/>
@@ -18,12 +22,23 @@
       <remap from="send_sms" to="/$(arg host_namespace)/usbl_modem/send_sms"/>
     </node>
 
-    <rosparam file="$(find mesobot_project11)/config/platform.yaml" command="load" ns="project11/platforms/$(arg platform_name)"/>
+    <rosparam command="load" file="$(find mesobot_project11)/config/mesobot.yaml"/>
 
-    <rosparam param="project11/platforms/$(arg platform_name)/" subst_value="True">{robot_description: $(arg mesobot_namespace)/robot_description, namespace: $(arg mesobot_namespace)}</rosparam>
-    <rosparam param="project11/platforms/$(arg platform_name)/nav_sources/usbl" subst_value="True">{position_topic: /$(arg mesobot_namespace)/nav/position}</rosparam>
-
-    <node pkg="project11" type="platform_send.py" name="platform_sender"/>
   </group>
+
+  <include file="$(find project11)/launch/platform.launch">
+    <arg name="namespace" value="$(arg namespace)"/>
+    <arg name="platform_name" value="$(arg platform_name)"/>
+    <arg name="platform_package" value="mesobot_project11"/>
+  </include>
+
+  <include file="$(find project11)/launch/platform_nav_source.launch">
+    <arg name="namespace" value="$(arg namespace)"/>
+    <arg name="platform_name" value="$(arg platform_name)"/>
+    <arg name="position_topic" value="sensors/nav/pose"/>
+    <arg name="orientation_topic" value="sensors/nav/pose"/>
+  </include>
+
+  <node pkg="mesobot_behavior" type="mesobot_behavior_node.py" name="mesobot_behavior" ns="$(arg host_namespace)"/>
 
 </launch>

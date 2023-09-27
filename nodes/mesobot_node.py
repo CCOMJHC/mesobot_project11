@@ -8,6 +8,7 @@ from geographic_msgs.msg import GeoPoseStamped
 from project11_msgs.msg import Heartbeat
 from project11_msgs.msg import KeyValue as HBKeyValue
 from std_msgs.msg import Float32
+from geometry_msgs.msg import TwistWithCovarianceStamped
 
 import math
 
@@ -97,6 +98,7 @@ def smsCallback( msg):
 
 
 def positionCallback(msg):
+  global last_positon_time
   gps = GeoPoseStamped()
   gps.header = msg.header
   gps.pose.position = msg.position
@@ -111,9 +113,19 @@ def positionCallback(msg):
         gps.pose.orientation.y = quat[1]
         gps.pose.orientation.z = quat[2]
         gps.pose.orientation.w = quat[3]
-  position_pub.publish(gps)
+  pose_pub.publish(gps)
   last_positon_time = gps.header.stamp
-  #print (msg)
+
+  twist = TwistWithCovarianceStamped()
+  twist.header = msg.header
+  twist.twist.covariance[0] = 100
+  twist.twist.covariance[7] = 100
+  twist.twist.covariance[14] = 100
+  twist.twist.covariance[21] = 100
+  twist.twist.covariance[28] = 100
+  twist.twist.covariance[35] = 100
+  velocity_pub.publish(twist)
+
 
 def backupPositionCallback(msg):
   gps = GeoPoseStamped()
@@ -131,7 +143,7 @@ def backupPositionCallback(msg):
         gps.pose.orientation.z = quat[2]
         gps.pose.orientation.w = quat[3]
   if last_positon_time is None or msg.header.stamp - last_positon_time > rospy.Duration(30):
-    position_pub.publish(gps)
+    pose_pub.publish(gps)
   #print (msg)
 
 
@@ -142,7 +154,8 @@ position_sub = rospy.Subscriber('position', GeoPointStamped, positionCallback)
 backup_position_sub = rospy.Subscriber('backup_position', GeoPointStamped, backupPositionCallback)
 
 heartbeat_pub = rospy.Publisher('project11/heartbeat', Heartbeat, queue_size=1)
-position_pub = rospy.Publisher('nav/position', GeoPoseStamped, queue_size=1)
+pose_pub = rospy.Publisher('sensors/nav/pose', GeoPoseStamped, queue_size=1)
+velocity_pub = rospy.Publisher('sensors/nav/velocity', TwistWithCovarianceStamped, queue_size=1)
 
 heading_pub = rospy.Publisher('heading', Float32, queue_size=1)
 depth_pub = rospy.Publisher('depth', Float32, queue_size=1)
