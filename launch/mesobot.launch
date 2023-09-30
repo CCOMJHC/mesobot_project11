@@ -4,6 +4,7 @@
   <arg name="usbl_address" default="2509"/>
   <arg name="usbl_backup_address" default="2712"/>
   <arg name="platform_name" default="mesobot"/>
+  <arg name="with_ctd" default="false"/>
 
   <include file="$(find project11)/launch/robot_core.launch">
     <arg name="namespace" value="$(arg namespace)"/>
@@ -17,7 +18,7 @@
       <remap from="backup_position" to="/$(arg host_namespace)/usbl_ranger/positions/$(arg usbl_backup_address)"/>
     </node>
 
-    <node pkg="mesobot_project11" type="ctd.py" name="ctd">
+    <node if="$(arg with_ctd)" pkg="mesobot_project11" type="ctd.py" name="ctd">
       <remap from="raw" to="/$(arg host_namespace)/usbl_modem/raw"/>
       <remap from="send_sms" to="/$(arg host_namespace)/usbl_modem/send_sms"/>
     </node>
