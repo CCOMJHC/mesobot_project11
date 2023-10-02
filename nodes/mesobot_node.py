@@ -55,7 +55,7 @@ def smsCallback( msg):
         values.append(p)
         if key == 'H:' and not 'heading' in state:
           try:
-            state['heading'] = float(p)
+            state['heading'] = float(p.strip(', '))
             hmsg = Float32()
             hmsg.data = state['heading']
             heading_pub.publish(hmsg)
@@ -63,7 +63,7 @@ def smsCallback( msg):
             pass
         if key == 'D:' and not 'depth' in state:
           try:
-            state['depth'] = float(p)
+            state['depth'] = float(p.strip(', '))
             dmsg = Float32()
             dmsg.data = state['depth']
             depth_pub.publish(dmsg)
@@ -71,7 +71,7 @@ def smsCallback( msg):
             pass
         if key == 'B:' and not 'battery' in state:
           try:
-            state['battery'] = float(p)
+            state['battery'] = float(p.strip(', '))
             bmsg = Float32()
             bmsg.data = state['battery']
             battery_pub.publish(bmsg)
@@ -79,7 +79,7 @@ def smsCallback( msg):
             pass
         if key == 'R:' and not 'radiometer' in state:
           try:
-            state['radiometer'] = float(p)
+            state['radiometer'] = float(p.strip(', '))
             rmsg = Float32()
             rmsg.data = state['radiometer']
             radiometer_pub.publish(rmsg)
