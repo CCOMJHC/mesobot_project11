@@ -147,6 +147,13 @@ def backupPositionCallback(msg):
   #print (msg)
 
 
+def sendPing(event):
+  sms = SMS()
+  sms.address = '2509'
+  sms.message = 'Ping'
+  sms_pub.publish(sms)
+
+
 rospy.init_node('mesobot', anonymous=False)
 
 sms_sub = rospy.Subscriber('sms', SMS, smsCallback)
@@ -161,5 +168,10 @@ heading_pub = rospy.Publisher('heading', Float32, queue_size=1)
 depth_pub = rospy.Publisher('depth', Float32, queue_size=1)
 battery_pub = rospy.Publisher('battery', Float32, queue_size=1)
 radiometer_pub = rospy.Publisher('radiometer', Float32, queue_size=1)
+
+beacon_id = rospy.get_param('~beacon_id', '2509')
+sms_pub = rospy.Publisher('send_sms', SMS, queue_size=1)
+t = rospy.Timer(rospy.Duration(19.5), sendPing)
+
 
 rospy.spin()

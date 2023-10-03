@@ -14,8 +14,10 @@
   <group ns="$(arg namespace)">
     <node pkg="mesobot_project11" type="mesobot_node.py" name="mesobot">
       <remap from="sms" to="/$(arg host_namespace)/usbl_modem/received_sms"/>
+      <remap from="send_sms" to="/$(arg host_namespace)/usbl_modem/send_sms"/>
       <remap from="position" to="/$(arg host_namespace)/usbl_ranger/positions/$(arg usbl_address)"/>
       <remap from="backup_position" to="/$(arg host_namespace)/usbl_ranger/positions/$(arg usbl_backup_address)"/>
+      <param name="beacon_id" value="$(arg usbl_address)"/>
     </node>
 
     <node if="$(arg with_ctd)" pkg="mesobot_project11" type="ctd.py" name="ctd">
