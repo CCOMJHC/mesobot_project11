@@ -17,6 +17,7 @@
       <remap from="send_sms" to="/$(arg host_namespace)/usbl_modem/send_sms"/>
       <remap from="position" to="/$(arg host_namespace)/usbl_ranger/positions/$(arg usbl_address)"/>
       <remap from="backup_position" to="/$(arg host_namespace)/usbl_ranger/positions/$(arg usbl_backup_address)"/>
+      <remap from="ais_aton" to="/$(arg host_namespace)/sensors/ais/atons"/>
       <param name="beacon_id" value="$(arg usbl_address)"/>
     </node>
 
