@@ -151,7 +151,7 @@ def sendPing(event):
   sms = SMS()
   sms.address = '2509'
   sms.message = 'Ping'
-  sms_pub.publish(sms)
+  #sms_pub.publish(sms)
 
 
 rospy.init_node('mesobot', anonymous=False)
@@ -171,7 +171,7 @@ radiometer_pub = rospy.Publisher('radiometer', Float32, queue_size=1)
 
 beacon_id = rospy.get_param('~beacon_id', '2509')
 sms_pub = rospy.Publisher('send_sms', SMS, queue_size=1)
-t = rospy.Timer(rospy.Duration(19.5), sendPing)
+#t = rospy.Timer(rospy.Duration(19.5), sendPing)
 
 
 rospy.spin()
