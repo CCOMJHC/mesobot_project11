@@ -147,11 +147,33 @@ def backupPositionCallback(msg):
   #print (msg)
 
 def aisAtonCallback(msg):
+  rospy.loginfo('aton '+msg.header.frame_id)
+  if msg.header.frame_id != '999900120':
+    rospy.loginfo('skipping')
+    return
   gps = GeoPoseStamped()
   gps.header = msg.header
   gps.pose.position = msg.position
   gps.pose.position.altitude = 0.0
   pose_pub.publish(gps)
+
+  hb = Heartbeat()
+  hb.header.stamp = msg.header.stamp
+  kv = HBKeyValue()
+  kv.key = "status"
+  kv.value = "surface (ais)"
+  hb.values.append(kv)
+
+  kv = HBKeyValue()
+  kv.key = "latitude"
+  kv.value = str(msg.position.latitude)
+  hb.values.append(kv)
+
+  kv = HBKeyValue()
+  kv.key = "longitude"
+  kv.value = str(msg.position.longitude)
+  hb.values.append(kv)
+  heartbeat_pub.publish(hb)
 
 
 def sendPing(event):
