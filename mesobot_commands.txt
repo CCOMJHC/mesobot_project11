@@ -9,7 +9,7 @@ Good for depth and heading goals.
 
 DRIVE 1 180       <duty_cycle>  <seconds>
 
-SAMPLE 0 13 900
+#not work SAMPLE 0 13 900
 
 pump sampler unit 0, cartridge 13 for 15 minutes
 N.B. DEPTH_OFFSET is a command that currently only works via acoustic communication, but not in the mission script.
