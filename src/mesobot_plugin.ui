@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>706</width>
-    <height>300</height>
+    <width>623</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,18 +19,171 @@
      <item>
       <widget class="QLabel" name="commandTopicLabel">
        <property name="text">
-        <string>Mesobot command topic:</string>
+        <string>Mesobot command topic (raw):</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLineEdit" name="commandTopicLineEdit">
        <property name="text">
-        <string>/project11/drix_8/usbl_modem/send_sms</string>
+        <string>/project11/drix_8/usbl_modem/send_raw</string>
        </property>
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="feedbackTopicHorizontalLayout">
+     <item>
+      <widget class="QLabel" name="feedbackTopicLabel">
+       <property name="text">
+        <string>Mesobot feedback topic:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="feedbackTopicLineEdit">
+       <property name="text">
+        <string>/project11/drix_8/usbl_modem/raw</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Drive1</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Duty Cycle</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="driveDutyCycleLineEdit"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Time (s)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="driveTimeLineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="queueDrivePushButton">
+       <property name="text">
+        <string>Queue Drive1</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="goalGroupBox">
+     <property name="title">
+      <string>Goal1</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Degree of Freedom</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="goalDegreesOfFreedomComboBox"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Set Point</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="goalSetPointLineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Degrees</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="goalDegreesSetPointLineEdit"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="queueGoalPushButton">
+        <property name="text">
+         <string>Queue Goal1</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="smsPreambleHorizontalLayout">
+     <property name="topMargin">
+      <number>10</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>SMS preamble</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="smsPreambleLineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Command</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="commandLineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sendCommandPushButton">
+       <property name="text">
+        <string>Send</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="feedbackPlainTextEdit">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>200</height>
+      </size>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

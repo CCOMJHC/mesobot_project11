@@ -146,6 +146,13 @@ def backupPositionCallback(msg):
     pose_pub.publish(gps)
   #print (msg)
 
+def aisAtonCallback(msg):
+  gps = GeoPoseStamped()
+  gps.header = msg.header
+  gps.pose.position = msg.position
+  gps.pose.position.altitude = 0.0
+  pose_pub.publish(gps)
+
 
 def sendPing(event):
   sms = SMS()
@@ -159,6 +166,7 @@ rospy.init_node('mesobot', anonymous=False)
 sms_sub = rospy.Subscriber('sms', SMS, smsCallback)
 position_sub = rospy.Subscriber('position', GeoPointStamped, positionCallback)
 backup_position_sub = rospy.Subscriber('backup_position', GeoPointStamped, backupPositionCallback)
+ais_sub = rospy.Subscriber('ais_aton', GeoPointStamped, aisAtonCallback)
 
 heartbeat_pub = rospy.Publisher('project11/heartbeat', Heartbeat, queue_size=1)
 pose_pub = rospy.Publisher('sensors/nav/pose', GeoPoseStamped, queue_size=1)
