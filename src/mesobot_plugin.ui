@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>467</height>
+    <width>754</width>
+    <height>641</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Helm Manager</string>
+   <string>Mesobot Control</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="commandTopicHorizontalLayout">
      <item>
       <widget class="QLabel" name="commandTopicLabel">
        <property name="text">
@@ -51,47 +51,113 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="poseTopicHorizontalLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_12">
        <property name="text">
-        <string>Drive1</string>
+        <string>Mesobot pose topic:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLineEdit" name="poseTopicLineEdit"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_13">
        <property name="text">
-        <string>Duty Cycle</string>
+        <string>Depth</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="driveDutyCycleLineEdit"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Time (s)</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="driveTimeLineEdit"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="queueDrivePushButton">
-       <property name="text">
-        <string>Queue Drive1</string>
-       </property>
-      </widget>
+      <widget class="QLCDNumber" name="depthLcdNumber"/>
      </item>
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="namespaceHorizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_15">
+       <property name="text">
+        <string>Mesobot namespace:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="namespaceLineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="driveGroupBox">
+     <property name="title">
+      <string>Drive</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Time (s)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="driveTimeLineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Duty Cycle</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="driveDutyCycleLineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Heading</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="driveHeadingLineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Degrees</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="driveHeadingDegreesLineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Depth</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="driveDepthLineEdit"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="queueDrivePushButton">
+        <property name="text">
+         <string>Queue Drive</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="goalGroupBox">
      <property name="title">
-      <string>Goal1</string>
+      <string>Goal1/Joy1</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
@@ -131,14 +197,44 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="queueJoyPushButton">
+        <property name="text">
+         <string>Queue Joy1</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="insertGroupBox">
+     <property name="title">
+      <string>Insert</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>File</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="insertFileComboBox"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="queueInsertPushButton">
+        <property name="text">
+         <string>Queue Insert</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="smsPreambleHorizontalLayout">
-     <property name="topMargin">
-      <number>10</number>
-     </property>
      <item>
       <widget class="QLabel" name="label_8">
        <property name="text">
@@ -148,6 +244,23 @@
      </item>
      <item>
       <widget class="QLineEdit" name="smsPreambleLineEdit"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>postamble</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="smsPostambleLineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="queueWaitPushButton">
+       <property name="text">
+        <string>Queue Wait</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -161,7 +274,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="commandLineEdit"/>
+      <widget class="QLineEdit" name="commandLineEdit">
+       <property name="font">
+        <font>
+         <family>Courier 10 Pitch</family>
+         <pointsize>13</pointsize>
+        </font>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="sendCommandPushButton">

@@ -1,6 +1,6 @@
 #include "mesobot_project11/mesobot_plugin.h"
 #include <pluginlib/class_list_macros.h>
-
+#include <QDateTime>
 #include <QDebug>
 namespace mesobot
 {
@@ -24,11 +24,21 @@ void MesobotPlugin::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.commandTopicLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_commandTopicLineEdit_editingFinished);
   connect(ui_.feedbackTopicLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_feedbackTopicLineEdit_editingFinished);
+  connect(ui_.poseTopicLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_poseTopicLineEdit_editingFinished);
+  connect(ui_.namespaceLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_namespaceLineEdit_editingFinished);
+  
   connect(ui_.sendCommandPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_sendCommandPushButton_pressed);
+  
   connect(ui_.queueDrivePushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueDrivePushButton_pressed);
   connect(ui_.queueGoalPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueGoalPushButton_pressed);
+  connect(ui_.queueJoyPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueJoyPushButton_pressed);
+  connect(ui_.queueWaitPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueWaitPushButton_pressed);
+  connect(ui_.queueInsertPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueInsertPushButton_pressed);
+  
   connect(ui_.goalSetPointLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_goalSetPointLineEdit_editingFinished);
   connect(ui_.goalDegreesSetPointLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_goalDegreesSetPointLineEdit_editingFinished);
+  connect(ui_.driveHeadingLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_driveHeadingLineEdit_editingFinished);
+  connect(ui_.driveHeadingDegreesLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_driveHeadingDegreesLineEdit_editingFinished);
   
 
   widget_->setWindowTitle(widget_->windowTitle() + " (" + QString::number(context.serialNumber()) + ")");
@@ -38,7 +48,9 @@ void MesobotPlugin::initPlugin(qt_gui_cpp::PluginContext& context)
 
 void MesobotPlugin::shutdownPlugin()
 {
-
+  raw_subscriber_.shutdown();
+  pose_subscriber_.shutdown();
+  raw_publisher_.shutdown();
 }
 
 void MesobotPlugin::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::Settings& instance_settings) const
@@ -47,8 +59,15 @@ void MesobotPlugin::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_c
   instance_settings.setValue("mesobotCommandTopic", mesobotCommandTopic);
   QString mesobotFeedbackTopic = ui_.feedbackTopicLineEdit->text();
   instance_settings.setValue("mesobotFeedbackTopic", mesobotFeedbackTopic);
+  QString mesobotPoseTopic = ui_.poseTopicLineEdit->text();
+  instance_settings.setValue("mesobotPoseTopic", mesobotPoseTopic);
+  QString mesobotNamespace = ui_.namespaceLineEdit->text();
+  instance_settings.setValue("mesobotNamespace", mesobotNamespace);
+
   QString smsPreamble = ui_.smsPreambleLineEdit->text();
   instance_settings.setValue("mesobotSMSPreamble", smsPreamble);
+  QString smsPostamble = ui_.smsPostambleLineEdit->text();
+  instance_settings.setValue("mesobotSMSPostamble", smsPostamble);
 
 }
 
@@ -58,18 +77,24 @@ void MesobotPlugin::restoreSettings(const qt_gui_cpp::Settings& plugin_settings,
   ui_.commandTopicLineEdit->setText(mesobotCommandTopic);
   QString mesobotFeedbackTopic = instance_settings.value("mesobotFeedbackTopic", "").toString();
   ui_.feedbackTopicLineEdit->setText(mesobotFeedbackTopic);
+  QString mesobotPoseTopic = instance_settings.value("mesobotPoseTopic", "").toString();
+  ui_.poseTopicLineEdit->setText(mesobotPoseTopic);
+  QString mesobotNamespace = instance_settings.value("mesobotNamespace", "").toString();
+  ui_.namespaceLineEdit->setText(mesobotNamespace);
 
   QString smsPreamble = instance_settings.value("mesobotSMSPreamble", "").toString();
   ui_.smsPreambleLineEdit->setText(smsPreamble);
+  QString smsPostamble = instance_settings.value("mesobotSMSPostamble", "").toString();
+  ui_.smsPostambleLineEdit->setText(smsPostamble);
 
   on_commandTopicLineEdit_editingFinished();
   on_feedbackTopicLineEdit_editingFinished();
-
+  on_poseTopicLineEdit_editingFinished();
+  on_namespaceLineEdit_editingFinished();
 }
 
 void MesobotPlugin::on_commandTopicLineEdit_editingFinished()
 {
-  ROS_INFO_STREAM(ui_.commandTopicLineEdit->text().toStdString());
   auto topic = ui_.commandTopicLineEdit->text().toStdString();
   if(topic != command_topic_)
   {
@@ -82,7 +107,6 @@ void MesobotPlugin::on_commandTopicLineEdit_editingFinished()
 
 void MesobotPlugin::on_feedbackTopicLineEdit_editingFinished()
 {
-  ROS_INFO_STREAM(ui_.feedbackTopicLineEdit->text().toStdString());
   auto topic = ui_.feedbackTopicLineEdit->text().toStdString();
   if(topic != feedback_topic_)
   {
@@ -93,10 +117,40 @@ void MesobotPlugin::on_feedbackTopicLineEdit_editingFinished()
   }  
 }
 
+void MesobotPlugin::on_poseTopicLineEdit_editingFinished()
+{
+  auto topic = ui_.poseTopicLineEdit->text().toStdString();
+  if(topic != pose_topic_)
+  {
+    pose_subscriber_.shutdown();
+    if(!topic.empty())
+      pose_subscriber_ = getNodeHandle().subscribe(topic, 10, &MesobotPlugin::poseCallback, this);
+    pose_topic_ = topic;
+  }  
+}
+
+void MesobotPlugin::on_namespaceLineEdit_editingFinished()
+{
+  auto ns = ui_.namespaceLineEdit->text().toStdString();
+  if(ns != namespace_)
+  {
+    std::vector<std::string> files;
+    if(ros::param::get(ns+"/control/files", files))
+    {
+      ui_.insertFileComboBox->clear();
+      for(auto f: files)
+        ui_.insertFileComboBox->addItem(f.c_str());
+    }
+    namespace_ = ns;
+  }
+}
+
 void MesobotPlugin::feedbackCallback(const std_msgs::String::ConstPtr& message)
 {
   std::lock_guard<std::mutex> lock(feedback_to_add_lock_);
-  feedback_to_add_.push_back(message->data);
+  std::string html = "<span style=\"color:blue;\">" + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss").toStdString();
+  html += " </span>" + message->data;
+  feedback_to_add_.push_back(html);
   QMetaObject::invokeMethod(this, &MesobotPlugin::appendFeedback);
 }
 
@@ -104,7 +158,7 @@ void MesobotPlugin::appendFeedback()
 {
   std::lock_guard<std::mutex> lock(feedback_to_add_lock_);
   for(auto feedback: feedback_to_add_)
-    ui_.feedbackPlainTextEdit->appendPlainText(feedback.c_str());
+    ui_.feedbackPlainTextEdit->appendHtml(feedback.c_str());
   feedback_to_add_.clear();
 }
 
@@ -113,9 +167,11 @@ void MesobotPlugin::on_sendCommandPushButton_pressed()
   std_msgs::String message;
   message.data = ui_.commandLineEdit->text().toStdString();
   raw_publisher_.publish(message);
+  std::string html = "<span style=\"color:red;\">" + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd HH:mm:ss").toStdString();
+  html += " </span>" + message.data;
   {
     std::lock_guard<std::mutex> lock(feedback_to_add_lock_);
-    feedback_to_add_.push_back(message.data);
+    feedback_to_add_.push_back(html);
   }
   QMetaObject::invokeMethod(this, &MesobotPlugin::appendFeedback);
 }
@@ -124,9 +180,20 @@ void MesobotPlugin::on_queueDrivePushButton_pressed()
 {
   QString command = ui_.smsPreambleLineEdit->text();
   command += "DRIVE ";
-  command += ui_.driveDutyCycleLineEdit->text();
-  command += " ";
   command += ui_.driveTimeLineEdit->text();
+  command += " ";
+  command += ui_.driveDutyCycleLineEdit->text();
+  if (!ui_.driveHeadingLineEdit->text().isEmpty())
+  {
+    command += " ";
+    command += ui_.driveHeadingLineEdit->text();
+    if(!ui_.driveDepthLineEdit->text().isEmpty())
+    {
+      command += " ";
+      command += ui_.driveDepthLineEdit->text();
+    }
+  }
+  command += ui_.smsPostambleLineEdit->text();
   ui_.commandLineEdit->setText(command);
 }
 
@@ -140,9 +207,44 @@ void MesobotPlugin::on_queueGoalPushButton_pressed()
   command += dof;
   command += " ";
   command += ui_.goalSetPointLineEdit->text();
+  command += ui_.smsPostambleLineEdit->text();
   ui_.commandLineEdit->setText(command);
 
 }
+
+void MesobotPlugin::on_queueJoyPushButton_pressed()
+{
+  QString command = ui_.smsPreambleLineEdit->text();
+  command += "JOY1 ";
+  QString dof = ui_.goalDegreesOfFreedomComboBox->currentText();
+  if(dof.size() > 1)
+    dof = dof.toStdString().substr(0,1).c_str();
+  command += dof;
+  command += " ";
+  command += ui_.goalSetPointLineEdit->text();
+  command += ui_.smsPostambleLineEdit->text();
+  ui_.commandLineEdit->setText(command);
+}
+
+void MesobotPlugin::on_queueWaitPushButton_pressed()
+{
+  QString command = ui_.smsPreambleLineEdit->text();
+  QString postamble = ui_.smsPostambleLineEdit->text();
+  while(!postamble.isEmpty() && (postamble[0] == ';' || postamble[0] == ' ') )
+    postamble = postamble.toStdString().substr(1).c_str();
+  command += postamble;
+  ui_.commandLineEdit->setText(command);
+}
+
+void MesobotPlugin::on_queueInsertPushButton_pressed()
+{
+  QString command = ui_.smsPreambleLineEdit->text();
+  command += "INSERT ";
+  command += ui_.insertFileComboBox->currentText();
+  command += ui_.smsPostambleLineEdit->text();
+  ui_.commandLineEdit->setText(command);
+}
+
 
 void MesobotPlugin::on_goalSetPointLineEdit_editingFinished()
 {
@@ -165,6 +267,50 @@ void MesobotPlugin::on_goalDegreesSetPointLineEdit_editingFinished()
     ui_.goalSetPointLineEdit->setText(QString::number(radians));
   }
 
+}
+
+void MesobotPlugin::on_driveHeadingLineEdit_editingFinished()
+{
+  bool ok;
+  double radians = ui_.driveHeadingLineEdit->text().toDouble(&ok);
+  if(ok)
+  {
+    auto degrees = 180.0*radians/M_PI;
+    ui_.driveHeadingDegreesLineEdit->setText(QString::number(degrees));
+  }
+  else
+    ui_.driveHeadingDegreesLineEdit->clear();
+}
+
+void MesobotPlugin::on_driveHeadingDegreesLineEdit_editingFinished()
+{
+  bool ok;
+  double degrees = ui_.driveHeadingDegreesLineEdit->text().toDouble(&ok);
+  if(ok)
+  {
+    auto radians = M_PI*degrees/180.0;
+    ui_.driveHeadingLineEdit->setText(QString::number(radians));
+  }
+  else
+    ui_.driveHeadingLineEdit->clear();
+
+}
+
+
+
+void MesobotPlugin::poseCallback(const geographic_msgs::GeoPoseStamped::ConstPtr & message)
+{
+  {
+    std::lock_guard<std::mutex> lock(depth_lock_);
+    depth_ = -message->pose.position.altitude;
+  }
+  QMetaObject::invokeMethod(this, &MesobotPlugin::updateDepth);
+}
+
+void MesobotPlugin::updateDepth()
+{
+  std::lock_guard<std::mutex> lock(depth_lock_);
+  ui_.depthLcdNumber->display(int(depth_));
 }
 
 
