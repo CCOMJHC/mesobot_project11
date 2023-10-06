@@ -28,12 +28,13 @@ def smsCallback( msg):
              'B:':'Battery',
              'R:':'Radiometer',
              'S:':'Flows',
-             'C:':'Command',
-             'M:':'Status',
-             'J:':'Drive'
+             'A:':'Internal Atmosphere',
+             'C:':'Conductivity',
+             'T:':'Temperature',
+             'W:':'Wait time'
              }
 
-  if msg.message.startswith('H: '):
+  if msg.message.startswith('A: '):
     parts = msg.message.split()
     print (parts)
     key = None
