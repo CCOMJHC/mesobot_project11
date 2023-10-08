@@ -9,6 +9,7 @@ from project11_msgs.msg import Heartbeat
 from project11_msgs.msg import KeyValue as HBKeyValue
 from std_msgs.msg import Float32
 from geometry_msgs.msg import TwistWithCovarianceStamped
+from project11_msgs.msg import CTDStamped
 
 import math
 
@@ -86,6 +87,28 @@ def smsCallback( msg):
             radiometer_pub.publish(rmsg)
           except ValueError:
             pass
+        if key == 'C:' and not 'conductivity' in state:
+          try:
+            state['conductivity'] = float(p.strip(', '))
+          except ValueError:
+            pass
+        if key == 'T:' and not 'temperature' in state:
+          try:
+            state['temperature'] = float(p.strip(', '))
+          except ValueError:
+            pass
+    try:
+      ctd = CTDStamped()
+      ctd.header.stamp = state['timestamp']
+      ctd.header.frame_id = 'project11/mesobot/ctd'
+      ctd.ctd.conductivity = state['conductivity']
+      ctd.ctd.temperature = state['temperature']
+      ctd.ctd.depth = state['depth']
+      ctd_pub.publish(ctd)
+    except KeyError:
+      pass
+
+
 
     if key is not None:
       kv = HBKeyValue()
@@ -199,6 +222,7 @@ heading_pub = rospy.Publisher('heading', Float32, queue_size=1)
 depth_pub = rospy.Publisher('depth', Float32, queue_size=1)
 battery_pub = rospy.Publisher('battery', Float32, queue_size=1)
 radiometer_pub = rospy.Publisher('radiometer', Float32, queue_size=1)
+ctd_pub = rospy.Publisher('ctd', CTDStamped, )
 
 beacon_id = rospy.get_param('~beacon_id', '2509')
 sms_pub = rospy.Publisher('send_sms', SMS, queue_size=1)
