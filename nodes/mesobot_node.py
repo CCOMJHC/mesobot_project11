@@ -15,6 +15,7 @@ import math
 
 import project11
 from tf.transformations import quaternion_about_axis
+import datetime
 
 last_state = None
 
@@ -32,7 +33,7 @@ def smsCallback( msg):
              'A:':'Internal Atmosphere',
              'C:':'Conductivity',
              'T:':'Temperature',
-             'w:':'Wait time (s)',
+             'w:':'Wait time',
              'm:':'Mission Time (hrs)',
              'd:':'Deployment Time (hrs)'
              }
@@ -104,6 +105,13 @@ def smsCallback( msg):
             if not 'flows' in state:
               state['flows'] = []
             state['flows'].append(float(p.strip(', ')))
+          except ValueError:
+            pass
+        if key == 'w:':
+          try:
+            seconds = int(p.strip(', '))
+            td = datetime.timedelta(seconds=seconds)
+            values[-1] = str(td)
           except ValueError:
             pass
     try:
