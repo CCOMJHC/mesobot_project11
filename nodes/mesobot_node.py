@@ -28,11 +28,13 @@ def smsCallback( msg):
              'D:':'Depth',
              'B:':'Battery',
              'R:':'Radiometer',
-             'S:':'Flows',
+             'F:':'Flows',
              'A:':'Internal Atmosphere',
              'C:':'Conductivity',
              'T:':'Temperature',
-             'W:':'Wait time'
+             'w:':'Wait time (s)',
+             'm:':'Mission Time (hrs)',
+             'd:':'Deployment Time (hrs)'
              }
 
   if msg.message.startswith('A: '):
@@ -97,6 +99,13 @@ def smsCallback( msg):
             state['temperature'] = float(p.strip(', '))
           except ValueError:
             pass
+        if key == 'F:':
+          try:
+            if not 'flows' in state:
+              state['flows'] = []
+            state['flows'].append(float(p.strip(', ')))
+          except ValueError:
+            pass
     try:
       ctd = CTDStamped()
       ctd.header.stamp = state['timestamp']
@@ -107,7 +116,19 @@ def smsCallback( msg):
       ctd_pub.publish(ctd)
     except KeyError:
       pass
+    try:
+      f1 = Float32()
+      f1.data = state['flows'][0]
 
+      f2 = Float32()
+      f2.data = state['flows'][1]
+
+      flow1_pub.publish(f1)
+      flow2_pub.publish(f2)
+    except KeyError:
+      pass
+    except IndexError:
+      pass
 
 
     if key is not None:
@@ -222,7 +243,10 @@ heading_pub = rospy.Publisher('heading', Float32, queue_size=1)
 depth_pub = rospy.Publisher('depth', Float32, queue_size=1)
 battery_pub = rospy.Publisher('battery', Float32, queue_size=1)
 radiometer_pub = rospy.Publisher('radiometer', Float32, queue_size=1)
-ctd_pub = rospy.Publisher('ctd', CTDStamped, )
+ctd_pub = rospy.Publisher('ctd', CTDStamped, queue_size=1)
+
+flow1_pub = rospy.Publisher('flow1', Float32, queue_size=1)
+flow2_pub = rospy.Publisher('flow2', Float32, queue_size=1)
 
 beacon_id = rospy.get_param('~beacon_id', '2509')
 sms_pub = rospy.Publisher('send_sms', SMS, queue_size=1)
