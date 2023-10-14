@@ -38,6 +38,8 @@ control/files:
  - bytes-sample-15-1m.mx
  - bytes-sample-15-20m.mx
  - bytes-sample-scheduled.mx
+ - d5w4r1d.mx
+ - dark-5m-white-4m-red-1m-dark.mx
  - init-ms16.mx
  - test-bytes-lights.mx
  - test-grid-aperture-shutter.mx
