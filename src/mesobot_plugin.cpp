@@ -358,24 +358,28 @@ void MesobotPlugin::updateRemoteCommand(QString command)
         }
         if(parts[1] == "sample")
         {
+          bool ok;
+          int sampler = parts[2].toInt(&ok);
+          if(ok)
           {
-            bool ok;
-            int sampler = parts[2].toInt(&ok);
-            if(ok)
-            {
-              auto sampler_string = QString::number(sampler);
-              if(sampler_string.size() == 1)
-                sampler_string = "0"+sampler_string;
-              QString mxfile = "bytes-sample-"+sampler_string+"-20m.mx";
-              if(ui_.insertFileComboBox->findText(mxfile) == -1)
-                resulting_command = "Invlid sampler";
-              else              
-                resulting_command = "INSERT "+mxfile;
-            }
-            else
-                resulting_command = "Invlid sampler";
+            auto sampler_string = QString::number(sampler);
+            if(sampler_string.size() == 1)
+              sampler_string = "0"+sampler_string;
+            QString mxfile = "bytes-sample-"+sampler_string+"-20m.mx";
+            if(ui_.insertFileComboBox->findText(mxfile) == -1)
+              resulting_command = "Invlid sampler";
+            else              
+              resulting_command = "INSERT "+mxfile;
           }
-
+          else
+            resulting_command = "Invlid sampler";
+        }
+        if(parts[1] == "lights")
+        {
+          if(parts[2] == "on")
+            resulting_command = "INSERT bytes-lights-white.mx";
+          if(parts[2] == "off")
+            resulting_command = "INSERT bytes-lights-off.mx";
         }
       }
     }
