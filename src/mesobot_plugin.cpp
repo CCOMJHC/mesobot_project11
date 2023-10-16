@@ -34,6 +34,7 @@ void MesobotPlugin::initPlugin(qt_gui_cpp::PluginContext& context)
   connect(ui_.queueJoyPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueJoyPushButton_pressed);
   connect(ui_.queueWaitPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueWaitPushButton_pressed);
   connect(ui_.queueInsertPushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueInsertPushButton_pressed);
+  connect(ui_.queueRemotePushButton, &QPushButton::pressed, this, &MesobotPlugin::on_queueRemotePushButton_pressed);
   
   connect(ui_.goalSetPointLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_goalSetPointLineEdit_editingFinished);
   connect(ui_.goalDegreesSetPointLineEdit, &QLineEdit::editingFinished, this, &MesobotPlugin::on_goalDegreesSetPointLineEdit_editingFinished);
@@ -141,6 +142,14 @@ void MesobotPlugin::on_namespaceLineEdit_editingFinished()
       for(auto f: files)
         ui_.insertFileComboBox->addItem(f.c_str());
     }
+
+    auto remote_topic = ns;
+    if(!remote_topic.empty() && remote_topic[0] != '/')
+      remote_topic = "/"+remote_topic;
+    remote_topic += "/remote_command";
+    remote_command_subscriber_.shutdown();
+    remote_command_subscriber_ = getNodeHandle().subscribe(remote_topic, 1, &MesobotPlugin::remoteCommandCallback, this);
+
     namespace_ = ns;
   }
 }
@@ -246,6 +255,14 @@ void MesobotPlugin::on_queueInsertPushButton_pressed()
 }
 
 
+void MesobotPlugin::on_queueRemotePushButton_pressed()
+{
+  QString command = ui_.smsPreambleLineEdit->text();
+  command += ui_.remoteCommandResultLineEdit->text();
+  command += ui_.smsPostambleLineEdit->text();
+  ui_.commandLineEdit->setText(command);
+}
+
 void MesobotPlugin::on_goalSetPointLineEdit_editingFinished()
 {
   bool ok;
@@ -297,7 +314,6 @@ void MesobotPlugin::on_driveHeadingDegreesLineEdit_editingFinished()
 }
 
 
-
 void MesobotPlugin::poseCallback(const geographic_msgs::GeoPoseStamped::ConstPtr & message)
 {
   {
@@ -311,6 +327,61 @@ void MesobotPlugin::updateDepth()
 {
   std::lock_guard<std::mutex> lock(depth_lock_);
   ui_.depthLcdNumber->display(int(depth_));
+}
+
+
+void MesobotPlugin::remoteCommandCallback(const std_msgs::String::ConstPtr & message)
+{
+  QString command = message->data.c_str();
+  QMetaObject::invokeMethod(this, "updateRemoteCommand", Qt::QueuedConnection, Q_ARG(QString, command));
+}
+
+void MesobotPlugin::updateRemoteCommand(QString command)
+{
+  ui_.remoteCommandLineEdit->setText(command);
+  QString resulting_command = "Invalid command";
+  auto parts = command.split(QRegularExpression("\\s+"));
+  if(!parts.empty())
+  {
+    if(parts.front() == "mesobot")
+    {
+      if(parts.size() == 3)
+      {
+        if(parts[1] == "depth")
+        {
+          bool ok;
+          float value = parts[2].toFloat(&ok);
+          if(ok)
+          {
+            resulting_command = "GOAL1 2 "+parts[2];
+          }
+        }
+        if(parts[1] == "sample")
+        {
+          {
+            bool ok;
+            int sampler = parts[2].toInt(&ok);
+            if(ok)
+            {
+              auto sampler_string = QString::number(sampler);
+              if(sampler_string.size() == 1)
+                sampler_string = "0"+sampler_string;
+              QString mxfile = "bytes-sample-"+sampler_string+"-20m.mx";
+              if(ui_.insertFileComboBox->findText(mxfile) == -1)
+                resulting_command = "Invlid sampler";
+              else              
+                resulting_command = "INSERT "+mxfile;
+            }
+            else
+                resulting_command = "Invlid sampler";
+          }
+
+        }
+      }
+    }
+  }
+
+  ui_.remoteCommandResultLineEdit->setText(resulting_command);
 }
 
 
