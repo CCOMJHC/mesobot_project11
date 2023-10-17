@@ -36,15 +36,19 @@ private slots:
   void on_queueGoalPushButton_pressed();
   void on_queueWaitPushButton_pressed();
   void on_queueInsertPushButton_pressed();
+  void on_queueRemotePushButton_pressed();
 
   void on_goalSetPointLineEdit_editingFinished();
   void on_goalDegreesSetPointLineEdit_editingFinished();
   void on_driveHeadingLineEdit_editingFinished();
   void on_driveHeadingDegreesLineEdit_editingFinished();
 
+  void updateRemoteCommand(QString command);
+
 private:
   void feedbackCallback(const std_msgs::String::ConstPtr & message);
   void poseCallback(const geographic_msgs::GeoPoseStamped::ConstPtr & message);
+  void remoteCommandCallback(const std_msgs::String::ConstPtr & message);
   void appendFeedback();
   void updateDepth();
 
@@ -60,12 +64,12 @@ private:
   ros::Publisher raw_publisher_;
   ros::Subscriber raw_subscriber_;
   ros::Subscriber pose_subscriber_;
+  ros::Subscriber remote_command_subscriber_;
 
   std::string namespace_;
 
   std::vector<std::string> feedback_to_add_;
   std::mutex feedback_to_add_lock_;
-
 };
 
 } // namespace mesobot
