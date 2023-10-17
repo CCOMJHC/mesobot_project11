@@ -7,7 +7,7 @@ from geographic_msgs.msg import GeoPointStamped
 from geographic_msgs.msg import GeoPoseStamped
 from project11_msgs.msg import Heartbeat
 from project11_msgs.msg import KeyValue as HBKeyValue
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Int32
 from geometry_msgs.msg import TwistWithCovarianceStamped
 from project11_msgs.msg import CTDStamped
 
@@ -110,6 +110,9 @@ def smsCallback( msg):
         if key == 'w:':
           try:
             seconds = int(p.strip(', '))
+            wait_seconds = Int32()
+            wait_seconds.data = seconds
+            wait_pub.publish(seconds)
             td = datetime.timedelta(seconds=seconds)
             values[-1] = str(td)
           except ValueError:
@@ -255,6 +258,8 @@ ctd_pub = rospy.Publisher('ctd', CTDStamped, queue_size=1)
 
 flow1_pub = rospy.Publisher('flow1', Float32, queue_size=1)
 flow2_pub = rospy.Publisher('flow2', Float32, queue_size=1)
+
+wait_pub = rospy.Publisher('wait_seconds', Int32, queue_size=1)
 
 beacon_id = rospy.get_param('~beacon_id', '2509')
 sms_pub = rospy.Publisher('send_sms', SMS, queue_size=1)

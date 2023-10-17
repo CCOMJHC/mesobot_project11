@@ -12,8 +12,8 @@ last_command_depth = None
 last_depth = None
 last_depth_time = None
 
-minimum_speed = 0.01
-maximum_speed = 0.35
+minimum_speed = 0.005
+maximum_speed = 0.25
 maximum_speed_depth_difference = 20.0
 
 def depthCallback(msg: Float32):
@@ -24,7 +24,7 @@ def depthCallback(msg: Float32):
 def layerCallback(msg: AcousticLayer):
   global last_command_time, last_command_depth
   now = rospy.Time.now()
-  if last_command_time is None or last_command_time < now-rospy.Duration(55) or (last_depth_time is not None and last_depth_time > last_command_time):
+  if last_command_time is None or last_command_time < now-rospy.Duration(55): #or (last_depth_time is not None and last_depth_time > last_command_time):
     last_command_depth = msg.slices[-1].center_of_mass_range
     speed = minimum_speed
     #print('now', rospy.Time.now(),'last depth', last_depth, 'time', last_depth_time)
