@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <geographic_msgs/GeoPoseStamped.h>
+#include <std_msgs/Int32.h>
 
 namespace mesobot {
 
@@ -44,11 +45,13 @@ private slots:
   void on_driveHeadingDegreesLineEdit_editingFinished();
 
   void updateRemoteCommand(QString command);
+  void updateWaitTime();
 
 private:
   void feedbackCallback(const std_msgs::String::ConstPtr & message);
   void poseCallback(const geographic_msgs::GeoPoseStamped::ConstPtr & message);
   void remoteCommandCallback(const std_msgs::String::ConstPtr & message);
+  void waitTimeCallback(const std_msgs::Int32::ConstPtr & message);
   void appendFeedback();
   void updateDepth();
 
@@ -58,6 +61,9 @@ private:
   double depth_;
   std::mutex depth_lock_;
 
+  int wait_seconds_;
+  ros::Time last_wait_time_report_;
+
   std::string command_topic_;
   std::string feedback_topic_;
   std::string pose_topic_;
@@ -65,6 +71,7 @@ private:
   ros::Subscriber raw_subscriber_;
   ros::Subscriber pose_subscriber_;
   ros::Subscriber remote_command_subscriber_;
+  ros::Subscriber wait_time_subscriber_;
 
   std::string namespace_;
 

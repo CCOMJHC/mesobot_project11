@@ -204,6 +204,18 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="waitTimeGroupBox">
+           <property name="title">
+            <string>Wait Time</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLCDNumber" name="waitTimeLcdNumber"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="insertGroupBox">
            <property name="title">
             <string>Insert</string>
@@ -211,13 +223,26 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="label_14">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>File</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="insertFileComboBox"/>
+             <widget class="QComboBox" name="insertFileComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="queueInsertPushButton">

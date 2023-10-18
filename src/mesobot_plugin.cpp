@@ -2,6 +2,7 @@
 #include <pluginlib/class_list_macros.h>
 #include <QDateTime>
 #include <QDebug>
+#include <QTimer>
 namespace mesobot
 {
 
@@ -149,6 +150,14 @@ void MesobotPlugin::on_namespaceLineEdit_editingFinished()
     remote_topic += "/remote_command";
     remote_command_subscriber_.shutdown();
     remote_command_subscriber_ = getNodeHandle().subscribe(remote_topic, 1, &MesobotPlugin::remoteCommandCallback, this);
+
+    auto wait_time_topic = ns;
+    if(!wait_time_topic.empty() && wait_time_topic[0] != '/')
+      wait_time_topic = "/"+wait_time_topic;
+    wait_time_topic += "/wait_seconds";
+    wait_time_subscriber_.shutdown();
+    wait_time_subscriber_ = getNodeHandle().subscribe(wait_time_topic, 1, &MesobotPlugin::waitTimeCallback, this);
+
 
     namespace_ = ns;
   }
@@ -388,6 +397,20 @@ void MesobotPlugin::updateRemoteCommand(QString command)
   ui_.remoteCommandResultLineEdit->setText(resulting_command);
 }
 
+
+void MesobotPlugin::waitTimeCallback(const std_msgs::Int32::ConstPtr & message)
+{
+  last_wait_time_report_ = ros::Time::now();
+  wait_seconds_ = message->data;
+  QMetaObject::invokeMethod(this, &MesobotPlugin::updateWaitTime, Qt::QueuedConnection);
+}
+
+void MesobotPlugin::updateWaitTime()
+{
+  int wait = wait_seconds_ - (ros::Time::now()-last_wait_time_report_).toSec();
+  ui_.waitTimeLcdNumber->display(wait);
+  QTimer::singleShot(1000, this,  &MesobotPlugin::updateWaitTime);
+}
 
 } // namespace mesobot
 
