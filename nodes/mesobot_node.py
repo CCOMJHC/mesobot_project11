@@ -203,10 +203,11 @@ def backupPositionCallback(msg):
   #print (msg)
 
 def aisAtonCallback(msg):
-  rospy.loginfo('aton '+msg.header.frame_id)
+  rospy.logdebug('aton '+msg.header.frame_id)
   if msg.header.frame_id != '999900120':
-    rospy.loginfo('skipping')
+    rospy.logdebug('skipping')
     return
+  rospy.loginfo('aton '+msg.header.frame_id)
   gps = GeoPoseStamped()
   gps.header = msg.header
   gps.pose.position = msg.position
