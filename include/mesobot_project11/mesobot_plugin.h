@@ -1,3 +1,6 @@
+// Copyright (c) 2023-2026 University of New Hampshire, Center for Coastal and Ocean Mapping / Joint Hydrographic Center
+// SPDX-License-Identifier: BSD-3-Clause
+
 #ifndef MESOBOT_PROJECT11_MESOBOT_PLUGIN_H
 #define MESOBOT_PROJECT11_MESOBOT_PLUGIN_H
 

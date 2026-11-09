@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2023-2026 University of New Hampshire, Center for Coastal and Ocean Mapping / Joint Hydrographic Center
+# SPDX-License-Identifier: BSD-3-Clause
 
 import rospy
 import tf.transformations
